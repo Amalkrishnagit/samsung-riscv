@@ -1,5 +1,5 @@
 # samsung-riscv
-# VSD Squadron-Mini-(RISC-V)-REASEARCH INTERNSHIP
+
 ##  Basic Details
 
 **Name:** Amalkrishna
