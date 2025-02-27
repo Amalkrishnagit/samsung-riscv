@@ -975,10 +975,10 @@ Every instruction in the provided verilog file is hard-coded, as seen in the pic
 # Motion Detector System
 
 ## Overview
-This C program is designed for a CH32V003 RISC-V Processor to control an LED and a buzzer based on the output from a Passive Infrared (PIR) motion sensor.
+This C program is designed for a CH32V003 RISC-V Processor to control an LED and a buzzer based on the output from an Infrared  sensor (HW-201).
 ## Components Required
  * **VSD Squadron Mini (Microcontroller)**
- * **PIR Motion Sensor (HC-SR501**)
+ * **IR Sensor (HW-201**)
  * **Buzzer (Active or passive)**
  * **LED (Indicator for motion detection)**
  * **Resistors:
@@ -993,22 +993,22 @@ This C program is designed for a CH32V003 RISC-V Processor to control an LED and
 - Communication Protocols: I2C, SPI, UART
 - GPIO Pins: Configurable for interfacing with external devices
 
-### HC-SR501 PIR Sensor
-- Detection Range: 3m - 7m (adjustable)
-- Detection Angle: 120° (wide coverage)
-- Response Time: 0.3s - 3s (adjustable)
-- Retrigger Time: 0.5s - 200s (adjustable)
-- Operating Voltage: 4.5V - 20V DC (works with 5V & 3.3V MCUs)
-- Output Signal: Digital (HIGH = Motion, LOW = No Motion)
-- Output Voltage: 3.3V - 5V (safe for most MCUs like CH32V00x, STM32, ESP32, Arduino)
-- Low Power Consumption: ~50µA in standby mode
-- PIR Pin	Microcontroller Connection
-- VCC	3.3V or 5V (MCU Power)
-- OUT	Digital Input Pin (Interrupt/GPIO)
-- GND	Ground (Common with MCU)
-- Use a pull-down resistor (10kΩ) on the OUT pin to avoid false triggers.
-- Use a decoupling capacitor (0.1µF) across VCC-GND for noise filtering.
+### HW-201 IR Sensor
 
+- Detection Method: Infrared reflection (reflects IR off objects)
+- Detection Range: 2cm - 30cm (adjustable via potentiometer)
+- Detection Angle: ~35°
+- Response Time: Fast (~1ms)
+- Operating Voltage: 3.3V - 5V (compatible with CH32V00x, STM32, ESP32, Arduino)
+- Output Signal: Digital (HIGH = No object, LOW = Object detected)
+- Output Voltage: 0V (LOW) / VCC (HIGH)
+- Power Consumption: ≤20mA
+- IR Sensor Pin	Microcontroller Connection
+- VCC	3.3V or 5V (MCU Power)
+- OUT	Digital Input Pin (GPIO/Interrupt)
+- GND	Ground (Common with MCU)
+- Use a 10kΩ pull-down resistor on the OUT pin for reliable readings.
+- Place a 0.1µF capacitor across VCC-GND to reduce noise.
 ## Circuit Connections
 <p align="center">
  <img width="500" src="/Task-5/CIRCUIT 1.JPG">
@@ -1016,9 +1016,9 @@ This C program is designed for a CH32V003 RISC-V Processor to control an LED and
 
 ### Connections:
 
-- Output Pin of PIR connected to PD2 Of VSDSquadron Mini Board.
-- VCC Of PIR connected to 5V Of VSDSquadron Mini Board.
-- GND Pin of PIR connected to GND Of VSDSquadron Mini Board.
+- Output Pin of IR connected to PD2 Of VSDSquadron Mini Board.
+- VCC Of IR connected to 5V Of VSDSquadron Mini Board.
+- GND Pin of IR connected to GND Of VSDSquadron Mini Board.
 - LED Anode Pin connected to PD4 Of VSDSquadron Mini Board.
 - LED Cathode connected to GND Of VSDSquadron Mini Board.
 - Buzzer connected to PD3 of VSD Squadron mini Board.
@@ -1028,9 +1028,9 @@ This C program is designed for a CH32V003 RISC-V Processor to control an LED and
      ┌────────────────────────┐
      │    VSD Squadron Mini   │
      │                        │
-     │  [5V]  ----> VCC (PIR) │
-     │  [GND] ----> GND (PIR) │
-     │  [D2]  <---- OUT (PIR) │───┬─── 10kΩ ───> GND
+     │  [5V]  ----> VCC (IR)  │
+     │  [GND] ----> GND (IR)  │
+     │  [D2]  <---- OUT (IR)  │───┬─── 10kΩ ───> GND
      │  [D3]  ----> Buzzer +  │
      │  [D4]  ----> LED +     │───┬─── 330Ω ───> GND
      │  [GND] ----> Buzzer -  │
@@ -1050,8 +1050,8 @@ This C program is designed for a CH32V003 RISC-V Processor to control an LED and
 	#include <ch32v00x.h>
 	#include <debug.h>
 	
-	#define PIR_GPIO_PORT GPIOD
-	#define PIR_GPIO_PIN GPIO_Pin_2 // PIR sensor connected to GPIO Pin 2
+	#define IR_GPIO_PORT GPIOD
+	#define IR_GPIO_PIN GPIO_Pin_2 // IR sensor connected to GPIO Pin 2
 	
 	#define LED_GPIO_PORT GPIOD
 	#define LED_GPIO_PIN GPIO_Pin_4 // LED connected to GPIO Pin 4
@@ -1070,7 +1070,7 @@ This C program is designed for a CH32V003 RISC-V Processor to control an LED and
 	{
 	    GPIO_InitTypeDef GPIO_InitStructure = {0};
 	
-	    // Enable clock for GPIOD (LED, Buzzer, PIR sensor)
+	    // Enable clock for GPIOD (LED, Buzzer, IR sensor)
 	    ENABLE_CLOCK;
 	
 	    // Configure LED as Output
@@ -1084,9 +1084,9 @@ This C program is designed for a CH32V003 RISC-V Processor to control an LED and
 	    GPIO_Init(BUZZER_GPIO_PORT, &GPIO_InitStructure);
 	
 	    // Configure PIR Sensor as Input
-	    GPIO_InitStructure.GPIO_Pin = PIR_GPIO_PIN;
+	    GPIO_InitStructure.GPIO_Pin = IR_GPIO_PIN;
 	    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; // Input with pull-up
-	    GPIO_Init(PIR_GPIO_PORT, &GPIO_InitStructure);
+	    GPIO_Init(IR_GPIO_PORT, &GPIO_InitStructure);
 	}
 	
 	int main(void)
@@ -1098,18 +1098,18 @@ This C program is designed for a CH32V003 RISC-V Processor to control an LED and
 	
 	    while (1)
 	    {
-	        // Read PIR sensor status
-	        uint8_t pirStatus = GPIO_ReadInputDataBit(PIR_GPIO_PORT, PIR_GPIO_PIN);
+	        // Read IR sensor status
+	        uint8_t irStatus = GPIO_ReadInputDataBit(IR_GPIO_PORT, IR_GPIO_PIN);
 	
-	        if (pirStatus == 1) // Motion detected
+	        if (irStatus == 1) // Motion detected
 	        {
 	            GPIO_SetBits(LED_GPIO_PORT, LED_GPIO_PIN); // Turn on LED
-	            GPIO_SetBits(BUZZER_GPIO_PORT, BUZZER_GPIO_PIN); // Turn on Buzzer
+	      	    GPIO_ResetBits(BUZZER_GPIO_PORT, BUZZER_GPIO_PIN); // Turn off Buzzer       
 	        }
 	        else
 	        {
 	            GPIO_ResetBits(LED_GPIO_PORT, LED_GPIO_PIN); // Turn off LED
-	            GPIO_ResetBits(BUZZER_GPIO_PORT, BUZZER_GPIO_PIN); // Turn off Buzzer
+	     	   GPIO_SetBits(BUZZER_GPIO_PORT, BUZZER_GPIO_PIN); // Turn on Buzzer   
 	        }
 	
 	        Delay_Ms(500); // Small delay to avoid flickering
@@ -1143,7 +1143,7 @@ This C program is designed for a CH32V003 RISC-V Processor to control an LED and
 
 	```
 
- This program sets up a monitoring system that activates an LED and a buzzer when motion is detected by the PIR sensor. It efficiently manages hardware through GPIO configurations and utilizes interrupts and delays to maintain responsive behavior while avoiding flickering effects in the LED and buzzer.
+ This program sets up a monitoring system that activates an LED and a buzzer when motion is detected by the IR sensor. It efficiently manages hardware through GPIO configurations and utilizes interrupts and delays to maintain responsive behavior while avoiding flickering effects in the LED and buzzer.
  
 ## Application Video
 [Watch the Application Video]
