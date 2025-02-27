@@ -1009,6 +1009,10 @@ This C program is designed for a CH32V003 RISC-V Processor to control an LED and
 - GND	Ground (Common with MCU)
 - Use a 10kΩ pull-down resistor on the OUT pin for reliable readings.
 - Place a 0.1µF capacitor across VCC-GND to reduce noise.
+<p align="center">
+ <img width="500" src="/Task-5/IMG 1.JPG">
+</p>
+
 ## Circuit Connections
 <p align="center">
  <img width="500" src="/Task-5/CIRCUIT 1.JPG">
