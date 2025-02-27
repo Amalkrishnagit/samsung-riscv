@@ -1150,7 +1150,7 @@ This C program is designed for a CH32V003 RISC-V Processor to control an LED and
  This program sets up a monitoring system that activates an LED and a buzzer when motion is detected by the IR sensor. It efficiently manages hardware through GPIO configurations and utilizes interrupts and delays to maintain responsive behavior while avoiding flickering effects in the LED and buzzer.
  
 ## Application Video
-[Watch the Application Video]
+[Watch the Application Video](https://drive.google.com/file/d/1MMFz-dPZmKYl-qd8fbjzV54vkTGpi-X8/view?usp=drive_link)
 </details>
 
 ----------------------------------
