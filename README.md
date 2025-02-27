@@ -1054,7 +1054,7 @@ This C program is designed for a CH32V003 RISC-V Processor to control an LED and
 	#define PIR_GPIO_PIN GPIO_Pin_2 // PIR sensor connected to GPIO Pin 2
 	
 	#define LED_GPIO_PORT GPIOD
-	#define LED_GPIO_PIN GPIO_Pin_6 // LED connected to GPIO Pin 6
+	#define LED_GPIO_PIN GPIO_Pin_4 // LED connected to GPIO Pin 4
 	
 	#define BUZZER_GPIO_PORT GPIOD
 	#define BUZZER_GPIO_PIN GPIO_Pin_3 // Buzzer connected to GPIO Pin 3
